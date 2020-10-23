@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[166]:
+# In[44]:
 
 
 import pandas as pd
@@ -31,6 +31,16 @@ def values_inside_iqr_for(series):
     print('Медиана ' + series.name + ' = ' + str(median))
     iqr = series.quantile(0.75) - series.quantile(0.25)
     print('IQR ' + series.name + ' = ' + str(iqr))
+    # внезапно читая чат в слаке я осознал что в учебнике была ошибка,
+    # и для определения нижней и верхней границ выбросов нужно было отнимать
+    # 1.5 межквартильных расстояния не от медианы, а от нижнего/верхнего квартиля
+    # (хотя это разбиралось в разделе о статистике, но как я указывал в комментариях к модулю
+    # он так сильно потерялся за остальными необязательными модулями, что определение и его смысл
+    # конечно остались в памяти, но подвоха в реализации даже не заметил)
+    # я сделал выводы. Но переделывать полностью проект уже поздно :(
+    # К тому же, в этом случае даже ученики 21 года не попадают под определение выбросов
+    # поэтому позволю себе оставить как есть.
+    # P.S. Впредь обязуюсь быть внимательнее и проверять всю инфу из учебника :)
     lower_bound = median - (1.5 * iqr)
     upper_bound = median + (1.5 * iqr)
     print('Нижняя граница выброса ' + series.name + ' = ' + str(lower_bound))
@@ -63,13 +73,13 @@ data.rename(columns={'famsize': 'family_size',
                      'goout': 'go_out'}, inplace=True)
 
 
-# In[167]:
+# In[5]:
 
 
 ## Разберем основные числовые столбцы
 
 
-# In[168]:
+# In[6]:
 
 
 # age
@@ -82,7 +92,7 @@ print(data.age.describe())
 data = data.loc[values_inside_iqr_for(data.age)]
 
 
-# In[169]:
+# In[7]:
 
 
 # m_education
@@ -105,7 +115,7 @@ data.m_education = np.where(data.m_education.isna(), data['f_education'], data['
 # результаты будут в конечном итоге
 
 
-# In[209]:
+# In[8]:
 
 
 # f_education
@@ -128,7 +138,7 @@ data.f_education = np.where(data.f_education.isna(), data['m_education'], data['
 # (хоть мы и знаем что вряд ли их можно будет назвать объективными)
 
 
-# In[208]:
+# In[9]:
 
 
 # traveltime
@@ -153,7 +163,7 @@ data.loc[(data['address'] == 'R') & (data['traveltime'].isna()), 'traveltime'] =
 # видим что 2% (7) учеников тратят очень много времени на путь до школы. посмотрим какие результаты они в итоге покажут
 
 
-# In[172]:
+# In[10]:
 
 
 # studytime
@@ -174,7 +184,7 @@ display_absent_values_for(data.studytime)
 data = data.dropna(subset=['studytime'], how='all')
 
 
-# In[173]:
+# In[11]:
 
 
 # failures
@@ -188,7 +198,7 @@ display_normalized_values_for(data.failures)
 data.failures = data.failures.fillna(0)
 
 
-# In[174]:
+# In[12]:
 
 
 # studytime_granular
@@ -202,7 +212,7 @@ display_normalized_values_for(data.studytime_granular)
 data.drop(['studytime_granular'], inplace=True, axis=1)
 
 
-# In[175]:
+# In[13]:
 
 
 # family_relations
@@ -231,7 +241,7 @@ data.loc[(data['parents_status'] == 'A') & (data['family_relations'].isna()), 'f
 data.loc[(data['parents_status'] == 'T') & (data['family_relations'].isna()), 'family_relations'] = 5
 
 
-# In[207]:
+# In[14]:
 
 
 # freetime
@@ -248,7 +258,7 @@ display_absent_values_for(data.freetime)
 data.freetime = np.where(data.freetime.isna(), data['go_out'], data['freetime'])
 
 
-# In[206]:
+# In[15]:
 
 
 # go_out
@@ -264,7 +274,7 @@ display_absent_values_for(data.go_out)
 data.go_out = np.where(data.go_out.isna(), data['freetime'], data['go_out'])
 
 
-# In[178]:
+# In[16]:
 
 
 # health
@@ -280,7 +290,7 @@ data.health.hist()
 # однако пока предлагаю оставить как есть, возможно в дальнейшем мы как-либо обработаем эти данные
 
 
-# In[179]:
+# In[17]:
 
 
 # absences
@@ -298,7 +308,7 @@ display_absent_values_for(data.absences)
 #отсутвующих значений нет
 
 
-# In[180]:
+# In[18]:
 
 
 # score
@@ -315,7 +325,7 @@ data = data.loc[values_inside_iqr_for(data.score)]
 # а исследовать обычных студентов/школьников :)
 
 
-# In[181]:
+# In[19]:
 
 
 ## подведем итоги обработки числовых столбцов
@@ -325,13 +335,13 @@ data.info()
 # по разным причинам. Осталось 302 записи
 
 
-# In[182]:
+# In[20]:
 
 
 ## Обработка строковых столбцов
 
 
-# In[183]:
+# In[21]:
 
 
 # school
@@ -341,7 +351,7 @@ display_normalized_values_for(data.school)
 # видим, что 88% учеников обучаются в школе GP (что бы это ни значило). отсутсвующих/пустых значений нет
 
 
-# In[184]:
+# In[22]:
 
 
 # sex
@@ -352,7 +362,7 @@ display_normalized_values_for(data.sex)
 # видим что соотношение мальчиков и девочек примерно равное. отсутсвующих/пустых значений нет
 
 
-# In[185]:
+# In[23]:
 
 
 # address
@@ -371,7 +381,7 @@ data.loc[(data['traveltime'] == 1) & (data['address'].isna()), 'address'] = 'U'
 data.loc[(data['traveltime'] == 2) & (data['address'].isna()), 'address'] = 'R'
 
 
-# In[186]:
+# In[24]:
 
 
 # family size
@@ -391,7 +401,7 @@ data.loc[(data['parents_status'] == 'A') & (data['family_size'].isna()), 'family
 data.loc[(data['parents_status'] == 'T') & (data['family_size'].isna()), 'family_size'] = 'GT3'
 
 
-# In[212]:
+# In[25]:
 
 
 # parents_status
@@ -409,7 +419,7 @@ display_absent_values_for(data.parents_status)
 data.parents_status = data.parents_status.fillna(data.parents_status.mode()[0])
 
 
-# In[211]:
+# In[26]:
 
 
 # m_job
@@ -427,7 +437,7 @@ data = data.dropna(subset=['m_job', 'f_job'], how='all')
 data.m_job = np.where(data.m_job.isna(), data['f_job'], data['m_job'])
 
 
-# In[210]:
+# In[27]:
 
 
 # f_job
@@ -452,7 +462,7 @@ for key, value in values_dictionary.items():
     data.loc[(data['f_education'] == key) & (data['f_job'].isna()), 'f_job'] = value
 
 
-# In[190]:
+# In[28]:
 
 
 # reason
@@ -470,7 +480,7 @@ display_absent_values_for(data.reason)
 data.drop(['reason'], inplace=True, axis=1)
 
 
-# In[191]:
+# In[29]:
 
 
 # guardian
@@ -486,7 +496,7 @@ display_absent_values_for(data.guardian)
 data.drop(['guardian'], inplace=True, axis=1)
 
 
-# In[192]:
+# In[30]:
 
 
 # school_support
@@ -511,7 +521,7 @@ data.loc[(data['school'] == 'MS') & (data['school_support'].isna()), 'school_sup
 replace_yes_no_with_integers_in(data.school_support)
 
 
-# In[193]:
+# In[31]:
 
 
 # family_support
@@ -528,7 +538,7 @@ display_absent_values_for(data.family_support)
 replace_yes_no_with_integers_in(data.family_support)
 
 
-# In[194]:
+# In[32]:
 
 
 # paid
@@ -543,7 +553,7 @@ display_absent_values_for(data.paid)
 replace_yes_no_with_integers_in(data.paid)
 
 
-# In[195]:
+# In[33]:
 
 
 # activities
@@ -558,7 +568,7 @@ display_absent_values_for(data.activities)
 replace_yes_no_with_integers_in(data.activities)
 
 
-# In[196]:
+# In[34]:
 
 
 # nursery
@@ -573,7 +583,7 @@ display_absent_values_for(data.nursery)
 replace_yes_no_with_integers_in(data.nursery)
 
 
-# In[197]:
+# In[35]:
 
 
 # higher
@@ -591,7 +601,7 @@ data.higher = data.higher.fillna('yes')
 replace_yes_no_with_integers_in(data.higher)
 
 
-# In[198]:
+# In[36]:
 
 
 # internet
@@ -608,7 +618,7 @@ display_absent_values_for(data.internet)
 replace_yes_no_with_integers_in(data.internet)
 
 
-# In[199]:
+# In[37]:
 
 
 # romantic
@@ -622,7 +632,7 @@ display_normalized_values_for(data.romantic)
 replace_yes_no_with_integers_in(data.romantic)
 
 
-# In[200]:
+# In[38]:
 
 
 ## данные после обработки всех столбцов 
@@ -631,7 +641,7 @@ data.info()
 # осталось 298 записей, часть столбцов была удалена
 
 
-# In[201]:
+# In[39]:
 
 
 # рассмотрим таблицу корреляции
@@ -664,7 +674,7 @@ data.corr()
 # со способом замены пропусков в обоих случаях, хоть и незначительно
 
 
-# In[202]:
+# In[40]:
 
 
 # проведем анализ номинативных переменных
@@ -681,7 +691,7 @@ for col in data.columns:
     
 
 
-# In[214]:
+# In[41]:
 
 
 # номинатвный анализ
@@ -767,7 +777,7 @@ for col in data.columns:
 # на снижение итоговой оценки
 
 
-# In[218]:
+# In[42]:
 
 
 # проверим, есть ли статистическая разница в распределении оценок по номинативным признакам, 
@@ -802,7 +812,7 @@ data_model = data.loc[:, ['sex', 'age', 'address', 'm_education', 'studytime', '
 data_model.head()
 
 
-# In[ ]:
+# In[43]:
 
 
 ## Выводы:
