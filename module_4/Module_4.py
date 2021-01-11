@@ -149,12 +149,13 @@ WHERE a.city = 'Moscow'
   AND f.departure_airport = 'AAQ' -- 396 flights from Anapa to Moscow. Difference is 843 - 396 = 453
 
 -- 5.1.5 (Boeing 737-300)
-SELECT count(*)
+SELECT p.model,
+       count(DISTINCT s.seat_no) seats_count
 FROM dst_project.airports a
 LEFT JOIN dst_project.flights f ON a.airport_code = f.departure_airport
+LEFT JOIN dst_project.seats s ON s.aircraft_code = f.aircraft_code
+LEFT JOIN dst_project.aircrafts p ON p.aircraft_code = s.aircraft_code
 WHERE a.city = 'Anapa'
-EXCEPT
-SELECT count(*)
-FROM dst_project.airports a
-LEFT JOIN dst_project.flights f ON a.airport_code = f.arrival_airport
-WHERE a.city = 'Moscow'
+GROUP BY p.model
+ORDER BY seats_count DESC
+LIMIT 1
