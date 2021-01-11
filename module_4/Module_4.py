@@ -113,3 +113,48 @@ SELECT p.seat_no
 FROM dst_project.tickets t
 LEFT JOIN dst_project.boarding_passes p ON t.ticket_no = p.ticket_no
 WHERE t.passenger_id = '4313 788533'
+
+-- 5.1.1 (426)
+SELECT count(f.flight_id)
+FROM dst_project.airports a
+LEFT JOIN dst_project.flights f ON a.airport_code = f.arrival_airport
+WHERE a.city = 'Anapa'
+  AND (f.actual_arrival BETWEEN '2017.01.01' AND '2017.12.31')
+  
+-- 5.1.2 (127)
+SELECT COUNT (f.flight_id)
+FROM dst_project.flights f
+LEFT JOIN dst_project.airports a ON a.airport_code = f.departure_airport
+WHERE a.city = 'Anapa'
+  AND f.actual_departure BETWEEN '2017-01-01 00:00:00' AND '2017-02-28 23:59:59'
+  OR f.actual_departure BETWEEN '2017-12-01 00:00:00' AND '2017-12-31 23:59:59'
+       
+-- 5.1.3 (1)
+SELECT count(f.flight_id)
+FROM dst_project.airports a
+LEFT JOIN dst_project.flights f ON a.airport_code = f.departure_airport
+WHERE a.city = 'Anapa'
+  AND f.status = 'Cancelled'
+  
+-- 5.1.4 (453)
+SELECT count(*)
+FROM dst_project.airports a
+LEFT JOIN dst_project.flights f ON a.airport_code = f.departure_airport
+WHERE a.city = 'Anapa' -- 843 fligts from Anapa total
+
+SELECT count(*)
+FROM dst_project.airports a
+LEFT JOIN dst_project.flights f ON a.airport_code = f.arrival_airport
+WHERE a.city = 'Moscow'
+  AND f.departure_airport = 'AAQ' -- 396 flights from Anapa to Moscow. Difference is 843 - 396 = 453
+
+-- 5.1.5 (Boeing 737-300)
+SELECT count(*)
+FROM dst_project.airports a
+LEFT JOIN dst_project.flights f ON a.airport_code = f.departure_airport
+WHERE a.city = 'Anapa'
+EXCEPT
+SELECT count(*)
+FROM dst_project.airports a
+LEFT JOIN dst_project.flights f ON a.airport_code = f.arrival_airport
+WHERE a.city = 'Moscow'
