@@ -163,18 +163,22 @@ LIMIT 1
 
 -- CSV EXPORT
 
-SELECT  f.flight_id,
-        f.arrival_airport,
-        plane.model,
-        (f.actual_arrival - f.actual_departure) duration,
-        count(pass.seat_no) places_taken,
-        sum(b.total_amount) amount
+SELECT f.flight_id,
+       f.arrival_airport,
+       plane.model,
+       (f.actual_arrival - f.actual_departure) duration,
+       count(pass.seat_no) places_taken,
+       sum(b.total_amount) amount
 FROM dst_project.flights f
-join dst_project.aircrafts plane on f.aircraft_code = plane.aircraft_code
-join dst_project.boarding_passes pass on f.flight_id = pass.flight_id
-join dst_project.tickets t on pass.ticket_no = t.ticket_no
-join dst_project.bookings b on t.book_ref = b.book_ref
+JOIN dst_project.aircrafts plane ON f.aircraft_code = plane.aircraft_code
+JOIN dst_project.boarding_passes pass ON f.flight_id = pass.flight_id
+JOIN dst_project.tickets t ON pass.ticket_no = t.ticket_no
+JOIN dst_project.bookings b ON t.book_ref = b.book_ref
 WHERE f.departure_airport = 'AAQ'
-  AND (date_trunc('month', f.scheduled_departure) in ('2017-01-01','2017-02-01', '2017-12-01'))
+  AND (date_trunc('month', f.scheduled_departure) in ('2017-01-01',
+                                                      '2017-02-01',
+                                                      '2017-12-01'))
   AND f.status not in ('Cancelled')
- group by f.flight_id, f.arrival_airport, plane.model
+GROUP BY f.flight_id,
+         f.arrival_airport,
+         plane.model
