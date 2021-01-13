@@ -169,13 +169,11 @@ SELECT f.flight_id,
        (EXTRACT(HOUR
                 FROM (f.actual_arrival-f.actual_departure))*60 + EXTRACT(MINUTE
                                                                          FROM (f.actual_arrival-f.actual_departure)))::int duration_in_mins,
-       count(pass.seat_no) places_taken,
-       sum(b.total_amount) amount
+       count(t.ticket_no) places_taken,
+       sum(t.amount) amount
 FROM dst_project.flights f
-JOIN dst_project.aircrafts plane ON f.aircraft_code = plane.aircraft_code
-JOIN dst_project.boarding_passes pass ON f.flight_id = pass.flight_id
-JOIN dst_project.tickets t ON pass.ticket_no = t.ticket_no
-JOIN dst_project.bookings b ON t.book_ref = b.book_ref
+INNER JOIN dst_project.aircrafts plane ON f.aircraft_code = plane.aircraft_code
+INNER JOIN dst_project.ticket_flights t ON t.flight_id = f.flight_id
 WHERE f.departure_airport = 'AAQ'
   AND (date_trunc('month', f.scheduled_departure) in ('2017-01-01',
                                                       '2017-02-01',
