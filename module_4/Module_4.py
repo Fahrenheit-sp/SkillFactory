@@ -166,7 +166,9 @@ LIMIT 1
 SELECT f.flight_id,
        f.arrival_airport,
        plane.model,
-       (f.actual_arrival - f.actual_departure) duration,
+       (EXTRACT(HOUR
+                FROM (f.actual_arrival-f.actual_departure))*60 + EXTRACT(MINUTE
+                                                                         FROM (f.actual_arrival-f.actual_departure)))::int duration_in_mins,
        count(pass.seat_no) places_taken,
        sum(b.total_amount) amount
 FROM dst_project.flights f
